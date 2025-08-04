@@ -1,3 +1,4 @@
+
 import pathlib
 import socket
 import sys
@@ -30,25 +31,27 @@ def receive_message(sock):
 
 
 def authenticate(s):
-    print("authentication protocol in progress")
+    # MODE 3: initiating authentication protocol
+    print("MODE 3: starting authentication protocol")
+    s.sendall(convert_int_to_bytes(3))  # MODE 3 indicator
 
-    s.sendall(convert_int_to_bytes(3))  # MODE 3
-
-    # Step 1: Send random message
+    # Step 1: Send random challenge to server (M1 + M2)
     client_message = secrets.token_bytes(32)
+    print(f"MODE 3: sending challenge ({len(client_message)} bytes)")
     send_message(s, client_message)
 
-    # Step 2: Receive signed message and cert
+    # Step 2: Receive signed message and certificate (two send_message calls)
+    print("MODE 3: awaiting server's signed challenge and certificate")
     signed_message = receive_message(s)
+    print(f"MODE 3: received signed challenge ({len(signed_message)} bytes)")
     server_cert_bytes = receive_message(s)
+    print(f"MODE 3: received server certificate ({len(server_cert_bytes)} bytes)")
 
-    # Load CA cert
+    # Load CA cert and verify server certificate signature
     with open("source/auth/cacsertificate.crt", "rb") as f:
         ca_cert = x509.load_pem_x509_certificate(f.read(), default_backend())
     ca_public_key = ca_cert.public_key()
 
-
-    # Verify that server cert is signed by CA
     try:
         server_cert = x509.load_pem_x509_certificate(server_cert_bytes, default_backend())
         ca_public_key.verify(
@@ -61,10 +64,8 @@ def authenticate(s):
         print("Server certificate NOT signed by CA. Aborting.")
         return False
 
-    # Extract server public key
+    # Extract server public key and verify signature
     server_public_key = server_cert.public_key()
-
-    # Verify that server signed the message using its private key
     try:
         server_public_key.verify(
             signed_message,
@@ -76,7 +77,7 @@ def authenticate(s):
             hashes.SHA256(),
         )
     except InvalidSignature:
-        print("Signature dont match, aborting now")
+        print("Signature mismatch. Aborting.")
         return False
 
     print("Authentication successful.")
@@ -88,15 +89,15 @@ def main(args):
     server_address = args[1] if len(args) > 1 else "localhost"
 
     start_time = time.time()
-
     print("Establishing connection to server...")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((server_address, port))
-        print("Connected")
+        print("Connected to server")
 
-        # Authenticate first
+        # MODE 3: Authenticate
         if not authenticate(s):
-            s.sendall(convert_int_to_bytes(2))  # Close connection
+            print("MODE 2: closing connection due to authentication failure")
+            s.sendall(convert_int_to_bytes(2))  # MODE 2: close
             return
 
         # File sending loop
@@ -107,30 +108,31 @@ def main(args):
                 filename = input("Invalid filename. Please try again: ").strip()
 
             if filename == "-1":
-                s.sendall(convert_int_to_bytes(2))
+                print("MODE 2: user requested close")
+                s.sendall(convert_int_to_bytes(2))  # MODE 2: close
                 break
 
             filename_bytes = filename.encode("utf-8")
+            base = pathlib.Path(filename).name
 
-            # Send the filename
+            # MODE 0: send filename
+            print(f"MODE 0: sending filename '{base}' ({len(filename_bytes)} bytes)")
             s.sendall(convert_int_to_bytes(0))
             s.sendall(convert_int_to_bytes(len(filename_bytes)))
             s.sendall(filename_bytes)
 
-            # Send the file
+            # MODE 1: send file data
             with open(filename, mode="rb") as fp:
                 data = fp.read()
-                s.sendall(convert_int_to_bytes(1))
-                s.sendall(convert_int_to_bytes(len(data)))
-                s.sendall(data)
+            print(f"MODE 1: sending file data ({len(data)} bytes)")
+            s.sendall(convert_int_to_bytes(1))
+            s.sendall(convert_int_to_bytes(len(data)))
+            s.sendall(data)
 
         print("Closing connection...")
-
     end_time = time.time()
     print(f"Program took {end_time - start_time:.2f}s to run.")
 
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-

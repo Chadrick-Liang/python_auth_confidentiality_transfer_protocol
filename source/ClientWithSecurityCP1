@@ -1,0 +1,158 @@
+### ClientWithSecurityCP1.py
+import pathlib
+import socket
+import sys
+import time
+import secrets
+
+from cryptography import x509
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.backends import default_backend
+
+# CP1: Using PKCS#1 v1.5 padding for RSA encryption of file data
+# RSA 1024-bit key → 128-byte blocks; min 11-byte padding → max 117 bytes data per block
+MAX_ENCRYPT_BLOCK = 117
+
+
+def convert_int_to_bytes(x):
+    return x.to_bytes(8, "big")
+
+
+def convert_bytes_to_int(xbytes):
+    return int.from_bytes(xbytes, "big")
+
+
+def send_message(sock, message: bytes):
+    sock.sendall(convert_int_to_bytes(len(message)))
+    sock.sendall(message)
+
+
+def receive_message(sock):
+    size = convert_bytes_to_int(sock.recv(8))
+    return sock.recv(size)
+
+
+def authenticate(s):
+    print("authentication protocol in progress")
+
+    s.sendall(convert_int_to_bytes(3))  # MODE 3
+
+    # Step 1: Send random challenge
+    client_message = secrets.token_bytes(32)
+    send_message(s, client_message)
+
+    # Step 2: Receive signed message and server certificate
+    signed_message = receive_message(s)
+    server_cert_bytes = receive_message(s)
+
+    # Load CA certificate
+    with open("source/auth/cacsertificate.crt", "rb") as f:
+        ca_cert = x509.load_pem_x509_certificate(f.read(), default_backend())
+    ca_public_key = ca_cert.public_key()
+
+    # Verify server certificate signature (by CA)
+    try:
+        server_cert = x509.load_pem_x509_certificate(server_cert_bytes, default_backend())
+        ca_public_key.verify(
+            server_cert.signature,
+            server_cert.tbs_certificate_bytes,
+            padding.PKCS1v15(),
+            server_cert.signature_hash_algorithm,
+        )
+    except InvalidSignature:
+        print("Server certificate NOT signed by CA. Aborting.")
+        return False
+
+    # Extract server public key
+    server_public_key = server_cert.public_key()
+
+    # Verify signed challenge
+    try:
+        server_public_key.verify(
+            signed_message,
+            client_message,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH,
+            ),
+            hashes.SHA256(),
+        )
+    except InvalidSignature:
+        print("Signature don't match, aborting now")
+        return False
+
+    print("Authentication successful.")
+    # Return server public key for subsequent CP1 encryption
+    return server_public_key
+
+
+def main(args):
+    port = int(args[0]) if len(args) > 0 else 4321
+    server_address = args[1] if len(args) > 1 else "localhost"
+
+    start_time = time.time()
+
+    print("Establishing connection to server...")
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((server_address, port))
+        print("Connected")
+
+        # Authenticate and retrieve server's public key
+        server_public_key = authenticate(s)
+        if not server_public_key:
+            s.sendall(convert_int_to_bytes(2))  # Close connection
+            return
+
+        # File sending loop
+        while True:
+            filename = input("Enter a filename to send (enter -1 to exit): ").strip()
+
+            while filename != "-1" and not pathlib.Path(filename).is_file():
+                filename = input("Invalid filename. Please try again: ").strip()
+
+            if filename == "-1":
+                s.sendall(convert_int_to_bytes(2))
+                break
+
+            filename_bytes = filename.encode("utf-8")
+
+            # MODE 0: send filename (unencrypted)
+            s.sendall(convert_int_to_bytes(0))
+            s.sendall(convert_int_to_bytes(len(filename_bytes)))
+            s.sendall(filename_bytes)
+
+            # MODE 1: send file contents, encrypted block-wise
+            with open(filename, mode="rb") as fp:
+                data = fp.read()
+
+                # CP1: split data into chunks of at most MAX_ENCRYPT_BLOCK bytes
+                chunks = [
+                    data[i : i + MAX_ENCRYPT_BLOCK]
+                    for i in range(0, len(data), MAX_ENCRYPT_BLOCK)
+                ]
+
+                encrypted_chunks = []
+                for chunk in chunks:
+                    encrypted_chunk = server_public_key.encrypt(
+                        chunk,
+                        padding.PKCS1v15()
+                    )
+                    encrypted_chunks.append(encrypted_chunk)
+
+                encrypted_data = b"".join(encrypted_chunks)
+
+                # Send MODE 1 code + length + encrypted payload
+                s.sendall(convert_int_to_bytes(1))
+                s.sendall(convert_int_to_bytes(len(encrypted_data)))
+                s.sendall(encrypted_data)
+
+        print("Closing connection...")
+
+    end_time = time.time()
+    print(f"Program took {end_time - start_time:.2f}s to run.")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
