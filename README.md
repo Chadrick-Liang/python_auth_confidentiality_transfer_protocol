@@ -246,6 +246,8 @@ pip3 install cryptography
 
 ---
 
+Task 1 and 2 done
+
 ## 👨‍💻
 
 - CL01 Team 1
