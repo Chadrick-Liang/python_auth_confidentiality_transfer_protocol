@@ -1,4 +1,5 @@
 
+
 import pathlib
 import os
 import socket
@@ -102,19 +103,19 @@ def main(args):
 
                             file_len = convert_bytes_to_int(read_bytes(client_socket, 8))
                             file_data = read_bytes(client_socket, file_len)
-                            print(f"MODE 1: received encrypted data ({file_len} bytes)")
+                            print(f"MODE 1: received data ({file_len} bytes)")
 
                             filename_base = filename.split("/")[-1]
-                            os.makedirs("recv_files_enc", exist_ok=True)
-                            with open(f"recv_files_enc/enc_recv_{filename_base}", "wb") as ef:
-                                ef.write(file_data)
-                            print(f"MODE 1: saved encrypted file 'recv_files_enc/enc_recv_{filename_base}'")
+                            # os.makedirs("recv_files_enc", exist_ok=True)
+                            # with open(f"recv_files_enc/enc_recv_{filename_base}", "wb") as ef:
+                            #     ef.write(file_data)
+                            # print(f"MODE 1: saved encrypted file 'recv_files_enc/enc_recv_{filename_base}'")
 
                             # Decryption omitted here
                             os.makedirs("recv_files", exist_ok=True)
                             with open(f"recv_files/recv_{filename_base}", "wb") as fp:
                                 fp.write(file_data)
-                            print(f"MODE 1: wrote decrypted file 'recv_files/recv_{filename_base}' in {(time.time()-start_time):.2f}s")
+                            print(f"MODE 1: wrote file 'recv_files/recv_{filename_base}' in {(time.time()-start_time):.2f}s")
 
                         case 2:
                             print("MODE 2: closing connection")
