@@ -8,6 +8,7 @@ import time
 from signal import signal, SIGINT
 import zlib
 import messages
+import hashlib, json
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
@@ -92,18 +93,43 @@ def main(args):
                     #print("Received filename:", filename)
                     print(messages.MESSAGES[lang]["rec_file"].format(filename))
 
+                    #check hash
+                    #print('starting to receive the enc hash header check')
+                    print(messages.MESSAGES[lang]["rec_hash_check"])
+                    hdr = read_bytes(conn, 8)
+                    length = convert_bytes_to_int(hdr)
+                    enc_header = read_bytes(conn, length)
+                    header = fernet.decrypt(enc_header)
+                    info  = json.loads(header.decode("utf-8"))
+                    full_fn, size, wanted = info["filename"], info["filesize"], info["hash"]
+                    fn = pathlib.Path(full_fn).name
+                    store = pathlib.Path("recv_files") / f"recv_{fn}"
+                    if store.exists() and hashlib.sha256(store.read_bytes()).hexdigest() == wanted:
+                        reply = "SKIP"
+                        #print(f"Skipping {fn}, identical file already stored.")
+                        print(messages.MESSAGES[lang]["server_skip"].format(fn))
+                    else:
+                        reply = "SEND"
+                        #print('guess i dont have it yet.')
+                        print(messages.MESSAGES[lang]["server_no_skip"])
+
+                    enc_reply = fernet.encrypt(reply.encode("utf-8"))
+                    send_message(conn, enc_reply)
+
+                    if reply == "SKIP":
+                        continue
+
                 elif mode == 1:
                     #print("MODE 1: receiving encrypted data")
                     print(messages.MESSAGES[lang]["rec_enc"])
                     length = convert_bytes_to_int(read_bytes(conn, 8))
                     enc = read_bytes(conn, length)
 
-                    # ── ARCHIVE THE CIPHERTEXT ───────────────────────────────
+                    # ARCHIVE THE CIPHERTEXT
                     os.makedirs("recv_files_enc", exist_ok=True)
                     filename_base = pathlib.Path(filename).name
                     with open(f"recv_files_enc/enc_recv_{filename_base}", "wb") as archive:
                         archive.write(enc)
-                    # ─────────────────────────────────────────────────────────
 
                     # now decrypt with Fernet and write plaintext
                     #data = fernet.decrypt(enc)

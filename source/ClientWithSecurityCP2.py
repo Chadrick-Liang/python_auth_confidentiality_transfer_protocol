@@ -7,6 +7,7 @@ import time
 import secrets
 import zlib
 import messages
+import hashlib, json
 
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
@@ -94,6 +95,29 @@ def main(args):
             # MODE 1: symmetric encrypt file
             #data = open(fn, "rb").read()
             raw = open(fn, "rb").read()
+
+            #check for duplication
+            filename_base = pathlib.Path(fn).name
+            file_hash = hashlib.sha256(raw).hexdigest()
+            header  = json.dumps({
+                "filename": filename_base,
+                "filesize": len(raw),
+                "hash":     file_hash
+            }).encode("utf-8")
+            enc_header = fernet.encrypt(header)
+            send_message(s, enc_header)
+            #print('Just sent the encrypted hash header check')
+            print(messages.MESSAGES[lang]["sent_hash_check"])
+            enc_reply = receive_message(s)
+            reply = fernet.decrypt(enc_reply).decode("utf-8")
+            if reply == "SKIP":
+                #print(f"{fn} already on server; skipping.")
+                print(messages.MESSAGES[lang]["client_skip"].format(fn))
+                continue
+            else:
+                #print('guess i did not receive a skip')
+                print(messages.MESSAGES[lang]["client_no_skip"])
+
             compressed = zlib.compress(raw, level=6)
             #print(f'MODE 1: compressed {len(raw)} to {len(compressed)} bytes')
             print(messages.MESSAGES[lang]["compressed"].format(len(raw), len(compressed)))

@@ -42,6 +42,12 @@ MESSAGES = {
         "ses_key_conf":    "MODE 4: session key established",
         "unknown":    "Unknown MODE: {0}",
         "shut":    "Shutting down.",
+        "sent_hash_check": "Just sent the encrypted file hash check",
+        "client_skip": "{0} already on server, skipping",
+        "client_no_skip": "Server did not ask to skip, preparing to compress...",
+        "rec_hash_check": "Receiving the encrypted file hash check",
+        "server_skip": "Skipping {0}, identical file already stored",
+        "server_no_skip": "Do not have the file yet, request client to continue sending",
     },
     "zh": {
     "welcome":         "欢迎使用安全文件传输",
@@ -72,6 +78,12 @@ MESSAGES = {
     "ses_key_conf":    "模式 4：会话密钥已建立",
     "unknown":         "未知的模式：{0}",
     "shut":            "正在关闭。",
+    "sent_hash_check":    "刚刚发送了加密的文件哈希检查",
+    "client_skip":        "{0} 已存在于服务器，跳过",
+    "client_no_skip":     "服务器未要求跳过，准备进行压缩…",
+    "rec_hash_check":     "正在接收加密的文件哈希检查",
+    "server_skip":        "跳过 {0}，相同的文件已存储",
+    "server_no_skip":     "尚未拥有该文件，请求客户端继续发送",
 },
 
 # Tamil
@@ -104,6 +116,12 @@ MESSAGES = {
     "ses_key_conf":    "முறை 4: அமர்வு விசை நிறுவப்பட்டது",
     "unknown":         "அறியப்படாத முறை: {0}",
     "shut":            "மூடப்படுகிறது.",
+    "sent_hash_check":    "குறியாக்கப்பட்ட கோப்பு ஹாஷ் சரிபார்ப்பை தற்போது அனுப்பியது",
+    "client_skip":        "{0} சேவையகத்தில் ஏற்கனவே உள்ளது, தவிர்க்கப்படுகிறது",
+    "client_no_skip":     "சர்வர் தவிர்க்குமாறு கோரவில்லை, சுருக்கத் தயாராகிறோம்…",
+    "rec_hash_check":     "குறியாக்கப்பட்ட கோப்பு ஹாஷ் சரிபார்ப்பை பெறுகிறது",
+    "server_skip":        "{0} ஐ தவிர்த்து விடுகிறது, ஒரேபோலிய கோப்பு ஏற்கனவே சேமிக்கப்பட்டுள்ளது",
+    "server_no_skip":     "கோப்பு இன்னும் இல்லை; கிளையண்டிடம் அனுப்பலை தொடருமாறு கோருக",
 },
 
 # Malay
@@ -136,5 +154,11 @@ MESSAGES = {
     "ses_key_conf":    "MOD 4: kunci sesi telah dipersetujui",
     "unknown":         "MOD tidak diketahui: {0}",
     "shut":            "Menutup.",
+    "sent_hash_check":    "Baru sahaja menghantar semakan hash fail yang disulitkan",
+    "client_skip":        "{0} sudah ada di pelayan, melangkau",
+    "client_no_skip":     "Pelayan tidak meminta untuk melangkau, bersedia untuk mampat…",
+    "rec_hash_check":     "Menerima semakan hash fail yang disulitkan",
+    "server_skip":        "Melangkau {0}, fail yang sama telah disimpan",
+    "server_no_skip":     "Belum mempunyai fail tersebut, minta klien untuk terus menghantar",
   },
 }
