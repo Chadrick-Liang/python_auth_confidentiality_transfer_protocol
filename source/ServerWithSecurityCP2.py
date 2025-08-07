@@ -6,6 +6,7 @@ import socket
 import sys
 import time
 from signal import signal, SIGINT
+import zlib
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
@@ -92,11 +93,14 @@ def main(args):
                     # ─────────────────────────────────────────────────────────
 
                     # now decrypt with Fernet and write plaintext
-                    data = fernet.decrypt(enc)
+                    #data = fernet.decrypt(enc)
+                    compressed = fernet.decrypt(enc)
+                    raw = zlib.decompress(compressed)
+                    print(f"MODE 1: decompressed to from {len(compressed)} to {len(raw)} bytes")
                     os.makedirs("recv_files", exist_ok=True)
                     out = f"recv_files/recv_{filename_base}"
                     with open(out, "wb") as f:
-                        f.write(data)
+                        f.write(raw)
                     print("Wrote", out)
 
                 elif mode == 2:

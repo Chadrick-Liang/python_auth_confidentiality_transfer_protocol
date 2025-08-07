@@ -5,6 +5,7 @@ import socket
 import sys
 import time
 import secrets
+import zlib
 
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
@@ -110,16 +111,17 @@ def main(args):
 
             # MODE 1: symmetric encrypt file
             # MODE 1: symmetric encrypt file
-            data = open(fn, "rb").read()
-            enc = fernet.encrypt(data)
+            #data = open(fn, "rb").read()
+            raw = open(fn, "rb").read()
+            compressed = zlib.compress(raw, level=6)
+            print(f'MODE 1: compressed {len(raw)} to {len(compressed)} bytes')
+            enc = fernet.encrypt(compressed)
 
-            # ── ARCHIVE OF CIPHERTEXT────────────────────────────
 
             os.makedirs("send_files_enc", exist_ok=True)
             base = pathlib.Path(fn).name
             with open(f"send_files_enc/enc_{base}", "wb") as archive:
                 archive.write(enc)
-            # ─────────────────────────────────────────────────────────────────
 
             print(f"MODE 1: sending {len(enc)} bytes of encrypted data")
             s.sendall(convert_int_to_bytes(1))
