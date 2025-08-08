@@ -135,24 +135,29 @@ By combining persistent sessions with per-file request handling, the implementat
 
 **1) Optimized File Transfer**
 
+*Disclaimer: We have only implemented this feature within CP2 due to the lack of time*
+
 **How it works:** 
+The sustainability feature adds an encrypted‐deduplication handshake and transparent compression to every file transfer. 
+
+After a secure session is established, the client computes a SHA-256 digest of the raw file before each payload transfer. It packages the filename, size and digest into a small JSON header, encrypted under the symmetric session key, and sends it to the server. The server decrypts and parses the eader and checks for the filename inside the 'recv_files' folder. It then recomputes a hash value of the potential duplicate file. If the server's copy produces the same digest, it replies "SKIP" and the client aborts the transfer, saving the entire payload.
+
+If the file is new or has changed, the client proceeds to compress the raw bytes with zlib, encrypts the compressed blob, and streams it. The server then decrypts and decompresses the data, storing it under recv_files.
 
 **Explanation:** This implementation incorporates sustainability considerations by reducing unnecessary data transfers and optimising network usage. 
-Once the secure session key is established between the client and server, the client generates an encrypted hash of the file and sends it to the server for verification. 
-If the server detects that an identical file already exists, the transfer is cancelled, preventing redundant uploads and saving bandwidth, processing power, and storage space. 
-Additionally, files are compressed before transmission, as seen in the `ClientWithSecurityCP2.py` and `ServerWithSecurityCP2.py` logic, further minimising the amount of data sent over the network. 
-These measures lower resource consumption on both client and server systems, aligning with sustainable computing practices.
+By replacing needless transmimssions with a tiny encrypted header and applying lightweight compression to the actual payload, we minimize overall energy consumption, total bandwith use, CPU and memory utilization, making every transfer as lean and efficient as possible.
 
 ## Inclusivity 
 
 **1) Multilingual Support**
 
-*Disclaimer: We have only implemented this feature within CP2 due to the lack of time💔*
+*Disclaimer: We have only implemented this feature within CP2 due to the lack of time*
 
-**How it works:** The feature supports translation to the 4 local languages.
-The language is selected based on number being inputted. 1, 2, 3, 4 represent English, Chinese, Tamil & Malay respectively. 
+**How it works:** On startup, the client presents a simple menu of 4 supported languages (English, 中文, தமிழ், Bahasa Melayu) by reading from a shared messages.py dictionary module. The user enters a number (1–4), which the client maps to a language code ("en", "zh", "ta", "ms"). Immediately after opening the TCP connection, the client sends the chosen code where it is assigned to a global lang variable on both client and server.
+
+From then on, both sides import strings from the MESSAGES dictionary in messages.py, containing all user-facing text, keyed by the language code and message ID. All prompts, errors, and logs flow through this lookup table, so adding a new language is as simple as dropping in a new translation block in messages.py.
+
 
 **Explanation:** The client interface is designed with inclusivity in mind, offering full support for four languages.
-This multilingual approach ensures that users from diverse linguistic backgrounds can interact with the system comfortably without facing language barriers.
-In practice, language-specific message strings are handled within `messages.py`, where message prompts and notifications are mapped to their respective translations. 
+This multilingual approach ensures that users from diverse linguistic backgrounds can interact with the system comfortably without facing language barriers 
 This design choice broadens accessibility, allowing the application to be used effectively in multilingual communities and enhancing the overall user experience for a wider audience.
