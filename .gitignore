@@ -2,3 +2,4 @@ Pipfile
 .DS_Store
 .vscode/
 /source/__pycache__
+/.venv

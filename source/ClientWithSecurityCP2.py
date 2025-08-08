@@ -58,7 +58,7 @@ def main(args):
             s.sendall(convert_int_to_bytes(2))
             return
 
-        # —— MODE 4: session‐key handshake —— 
+        # MODE 4: session‐key handshake
         session_key = Fernet.generate_key()
         fernet = Fernet(session_key)
         #print("MODE 4: encrypting and sending session key")
@@ -72,7 +72,7 @@ def main(args):
         #print("MODE 4: session key sent")
         print(messages.MESSAGES[lang]["ses_key_sent"])
 
-        # —— file loop —— 
+        # file loop 
         while True:
             #fn = input("Enter filename to send (-1 to exit): ").strip()
             fn = input(messages.MESSAGES[lang]["ask_filename"]).strip()
