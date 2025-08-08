@@ -96,13 +96,13 @@ def main(args):
         send_message(s, lang.encode("utf-8"))
         print(messages.MESSAGES[lang]["connected"])
 
-        # —— MODE 3 AUTHENTICATION —— 
+        # MODE 3 AUTHENTICATION 
         server_public_key = authenticate(s)
         if not server_public_key:
             s.sendall(convert_int_to_bytes(2))
             return
 
-        # —— MODE 4: SESSION‐KEY HANDSHAKE —— 
+        # MODE 4: SESSION‐KEY exchange
         session_key = Fernet.generate_key()
         fernet = Fernet(session_key)
 
@@ -115,7 +115,7 @@ def main(args):
         send_message(s, encrypted_skey)
         print(messages.MESSAGES[lang]["ses_key_sent"])
 
-        # —— MODE 0+1: MULTI‐FILE LOOP —— 
+        #  MODE 0+1: with the multiple file thing
         while True:
             line = input(messages.MESSAGES[lang]["ask_filename"]).strip()
             if line == "-1":
@@ -162,12 +162,12 @@ def main(args):
                 print(messages.MESSAGES[lang]["compressed"].format(len(raw), len(compressed)))
                 enc = fernet.encrypt(compressed)
 
-                # archive ciphertext locally
+                # archive ciphertext 
                 os.makedirs("send_files_enc", exist_ok=True)
                 with open(f"send_files_enc/enc_{pathlib.Path(fn).name}", "wb") as archive:
                     archive.write(enc)
 
-                # MODE 1: send encrypted blob
+                # MODE 1: send encrypted 
                 print(messages.MESSAGES[lang]["sending_enc"].format(len(enc)))
                 s.sendall(convert_int_to_bytes(1))
                 s.sendall(convert_int_to_bytes(len(enc)))
