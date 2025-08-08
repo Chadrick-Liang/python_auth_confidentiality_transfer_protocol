@@ -134,9 +134,9 @@ Client and server share one TCP connection that stays open until you quit.
 
 For each file the client: 
 
-1)sends its name
+1) Sends its name
 
-2)encrypts it and sends the ciphertext
+2) Encrypts it and sends the ciphertext
 • The server reads name → reads ciphertext → decrypts → saves, then loops back for the next file.
 • No reconnects between files—everything streams one after another over the same socket.
 • When you’re done you type –1, the client sends a “close” message and both sides shut down.
