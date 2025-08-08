@@ -32,11 +32,11 @@ def receive_message(sock):
 
 
 def authenticate(s):
-    # MODE 3: initiating authentication protocol
+    # MODE 3: authentication protocol start
     print("MODE 3: starting authentication protocol")
     s.sendall(convert_int_to_bytes(3))  # MODE 3 indicator
 
-    # Step 1: Send random challenge to server (M1 + M2)
+    # Step 1: Send random challenge(nonce is random generated) to server (M1 + M2)
     client_message = secrets.token_bytes(32)
     print(f"MODE 3: sending challenge ({len(client_message)} bytes)")
     send_message(s, client_message)
