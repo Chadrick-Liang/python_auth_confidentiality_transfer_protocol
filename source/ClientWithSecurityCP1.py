@@ -12,7 +12,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.backends import default_backend
 
-# CP1: Using PKCS#1 v1.5 padding for RSA encryption of file data
+# CP1: Using PKCS#1 v1.5 padding for RSA encryption of file data this is asymetric 
 # RSA 1024-bit key → 128-byte blocks; min 11-byte padding → max 117 bytes data per block
 MAX_ENCRYPT_BLOCK = 117
 
@@ -98,7 +98,7 @@ def main(args):
             s.sendall(convert_int_to_bytes(2))
             return
 
-        # File‐sending loop (supports multiple filenames per prompt)
+        # File‐sending part , hopefullly it sends multiple files 
         while True:
             line = input("Enter filenames to send (space-separated), or -1 to exit: ").strip()
             if line == "-1":
@@ -107,7 +107,7 @@ def main(args):
                 break
 
             filenames = line.split()
-            # validate all files exist
+            # making sure all files exist
             invalid = [f for f in filenames if not pathlib.Path(f).is_file()]
             if invalid:
                 print(f"Invalid filenames: {', '.join(invalid)}. Please try again.")
@@ -134,7 +134,7 @@ def main(args):
                 encrypted_data = b"".join(encrypted_chunks)
                 print(f"MODE 1: total encrypted payload size {len(encrypted_data)} bytes")
 
-                # save encrypted blob locally
+                # save encrypted to the send_files_enc for server
                 os.makedirs("send_files_enc", exist_ok=True)
                 enc_path = pathlib.Path("send_files_enc") / f"enc_{base}"
                 with open(enc_path, "wb") as ef:
