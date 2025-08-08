@@ -140,7 +140,7 @@ By combining persistent sessions with per-file request handling, the implementat
 **Explanation:** This implementation incorporates sustainability considerations by reducing unnecessary data transfers and optimising network usage. 
 Once the secure session key is established between the client and server, the client generates an encrypted hash of the file and sends it to the server for verification. 
 If the server detects that an identical file already exists, the transfer is cancelled, preventing redundant uploads and saving bandwidth, processing power, and storage space. 
-Additionally, files are compressed before transmission, as seen in the `ClientWithSecurityCP1.py` and `ServerWithSecurityCP2.py` logic, further minimising the amount of data sent over the network. 
+Additionally, files are compressed before transmission, as seen in the `ClientWithSecurityCP2.py` and `ServerWithSecurityCP2.py` logic, further minimising the amount of data sent over the network. 
 These measures lower resource consumption on both client and server systems, aligning with sustainable computing practices.
 
 ## Inclusivity 
