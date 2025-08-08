@@ -24,7 +24,6 @@ The implementation combines socket programming with cryptographic techniques to 
 ### Run `./setup.sh`
 
 Run this in the root project directory:
-
 ```
 chmod +x ./setup.sh
 ./setup.sh
@@ -46,13 +45,11 @@ To begin, open two separate terminal sessions. Then, run (assuming you're in roo
 ### 1) No Security
 
 Server:
-
 ```
 python3 source/ServerWithoutSecurity.py [PORT] 0.0.0.0
 ```
 
 Client:
-
 ```
 python3 source/ClientWithoutSecurity.py [PORT] [SERVER-IP-ADDRESS]
 ```
@@ -60,13 +57,11 @@ python3 source/ClientWithoutSecurity.py [PORT] [SERVER-IP-ADDRESS]
 ### 2) Authentication Protocol (AP)
 
 Server:
-
 ```
 python3 source/ServerWithSecurityAP.py [PORT] 0.0.0.0
 ```
 
 Client:
-
 ```
 python3 source/ClientWithSecurityAP.py [PORT] [SERVER-IP-ADDRESS]
 ```
@@ -74,13 +69,11 @@ python3 source/ClientWithSecurityAP.py [PORT] [SERVER-IP-ADDRESS]
 ### 3) Confidentiality Protocol 1 (CP1)
 
 Server:
-
 ```
 python3 source/ServerWithSecurityCP1.py [PORT] 0.0.0.0
 ```
 
 Client:
-
 ```
 python3 source/ClientWithSecurityCP1.py [PORT] [SERVER-IP-ADDRESS]
 ```
@@ -88,13 +81,11 @@ python3 source/ClientWithSecurityCP1.py [PORT] [SERVER-IP-ADDRESS]
 ### 4) Confidentiality Protocol 2 (CP2)
 
 Server:
-
 ```
 python3 source/ServerWithSecurityCP2.py [PORT] 0.0.0.0
 ```
 
 Client:
-
 ```
 python3 source/ClientWithSecurityCP2.py [PORT] [SERVER-IP-ADDRESS]
 ```
@@ -102,13 +93,11 @@ python3 source/ClientWithSecurityCP2.py [PORT] [SERVER-IP-ADDRESS]
 ### Using different machines
 
 Server:
-
 ```sh
 python3 source/ServerWithSecurityCP2.py 4321 0.0.0.0
 ```
 
 Client:
-
 ```sh
 python3 source/ClientWithSecurityCP2.py 4321 [SERVER-IP-ADDRESS]
 ```
@@ -116,20 +105,29 @@ python3 source/ClientWithSecurityCP2.py 4321 [SERVER-IP-ADDRESS]
 ### Exiting pipenv shell
 
 To exit pipenv shell, simply type:
-
 ```
 exit
 ```
 
 To restart later:
-
 ```
 pipenv shell
 ```
 
 # Section 2: Uploading multiple files
 
-# SO NOT DONE YET BRUH!!!!
+**How it works:** In the terminal, input the path directory of the two files while you wish to upload (with a space in between)
+
+For example:
+```
+files/file.txt files/player.psd
+```
+
+**Explanation:** The connection between Server and Client is kept open with respect to the number of files being sent.
+On the server side, each incoming file is treated as a separate request within the same session.
+
+**Advantage:** This design ensures that errors or interruptions affecting one file do not impact the transmission of others, while still benefiting from the efficiency of a single persistent connection. 
+By combining persistent sessions with per-file request handling, the implementation supports batch uploads more effectively, reducing connection setup time and improving overall throughput.
 
 # Section 3: Sustainability & Inclusivity
 
@@ -137,21 +135,24 @@ pipenv shell
 
 **1) Optimized File Transfer**
 
-How it works: 
+**How it works:** 
 
-Explanation: This implementation incorporates sustainability considerations by reducing unnecessary data transfers and optimising network usage. 
+**Explanation:** This implementation incorporates sustainability considerations by reducing unnecessary data transfers and optimising network usage. 
 Once the secure session key is established between the client and server, the client generates an encrypted hash of the file and sends it to the server for verification. 
 If the server detects that an identical file already exists, the transfer is cancelled, preventing redundant uploads and saving bandwidth, processing power, and storage space. 
-Additionally, files are compressed before transmission, as seen in the `ClientWithSecurityCP2.py` and `ServerWithSecurityCP2.py` logic, further minimising the amount of data sent over the network. 
+Additionally, files are compressed before transmission, as seen in the `ClientWithSecurityCP1.py` and `ServerWithSecurityCP2.py` logic, further minimising the amount of data sent over the network. 
 These measures lower resource consumption on both client and server systems, aligning with sustainable computing practices.
 
 ## Inclusivity 
 
 **1) Multilingual Support**
 
-How it works: 
+*Disclaimer: We have only implemented this feature within CP2 due to the lack of time💔*
 
-Explanation: The client interface is designed with inclusivity in mind, offering full support for four languages; English, Malay, Tamil, and Chinese. 
+**How it works:** The feature supports translation to the 4 local languages.
+The language is selected based on number being inputted. 1, 2, 3, 4 represent English, Chinese, Tamil & Malay respectively. 
+
+**Explanation:** The client interface is designed with inclusivity in mind, offering full support for four languages.
 This multilingual approach ensures that users from diverse linguistic backgrounds can interact with the system comfortably without facing language barriers.
 In practice, language-specific message strings are handled within `messages.py`, where message prompts and notifications are mapped to their respective translations. 
 This design choice broadens accessibility, allowing the application to be used effectively in multilingual communities and enhancing the overall user experience for a wider audience.
