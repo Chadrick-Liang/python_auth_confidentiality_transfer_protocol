@@ -1,23 +1,23 @@
 # Welcome to CL01 Team 1's PA2 GitRepo🥳
 This project is the implementation for Programming Assignment 2 of the Computer Systems Engineering module. 
 
-It develops a secure file upload application that enables a client to transfer files to a secure server while ensuring three key security requirements: 
+It develops a secure file upload application that enables a client to transfer files to a secure server while ensuring *three key security requirements:*
 
-1) authenticating the server’s identity to prevent data leaks to untrusted entities
-2) verifying that the server is live before transmission
-3) protecting the confidentiality of the data against eavesdropping during transfer
+1) Authenticating the server’s identity to prevent data leaks to untrusted entities
+2) Verifying that the server is live before transmission
+3) Protecting the confidentiality of the data against eavesdropping during transfer
 
-The solution is built in three progressive stages: 
+The solution is built in *three progressive stages:*
 
 Authentication Protocol (AP), Confidentiality Protocol 1 (CP1), and Confidentiality Protocol 2 (CP2) which together form a complete custom Secure File Transfer protocol. 
 The implementation combines socket programming with cryptographic techniques to provide layered security guarantees.
 
 # ReadME Layout
-Section 1: `Running the code` (Instructions on how to compile and run our programs)
+**Section 1:** `Running the code` *(Instructions on how to compile and run our programs)*
 
-Section 2: `Uploading multiple files` (Explaining how client can upload multiple files)
+**Section 2:** `Uploading multiple files` *(Explaining how client can upload multiple files)*
 
-Section 3: `Sustainability & Inclusivity` (Elaborating on how our team considered sustainability & inclusivity in the assignment)
+**Section 3:** `Sustainability & Inclusivity` *(Elaborating on how our team considered sustainability & inclusivity in the assignment)*
 
 # Section 1: Running the code
 
@@ -43,7 +43,7 @@ This will create 3 directories: `/recv_files`, `/recv_files_enc`, and `/send_fil
 
 To begin, open two separate terminal sessions. Then, run (assuming you're in root project directory):
 
-#### 1) No Security
+### 1) No Security
 
 Server:
 
@@ -57,7 +57,7 @@ Client:
 python3 source/ClientWithoutSecurity.py [PORT] [SERVER-IP-ADDRESS]
 ```
 
-#### 2) Authentication Protocol (AP)
+### 2) Authentication Protocol (AP)
 
 Server:
 
@@ -71,7 +71,7 @@ Client:
 python3 source/ClientWithSecurityAP.py [PORT] [SERVER-IP-ADDRESS]
 ```
 
-#### 3) Confidentiality Protocol 1 (CP1)
+### 3) Confidentiality Protocol 1 (CP1)
 
 Server:
 
@@ -85,7 +85,7 @@ Client:
 python3 source/ClientWithSecurityCP1.py [PORT] [SERVER-IP-ADDRESS]
 ```
 
-#### 4) Confidentiality Protocol 2 (CP2)
+### 4) Confidentiality Protocol 2 (CP2)
 
 Server:
 
