@@ -130,11 +130,13 @@ On the server side, each incoming file is treated as a separate request within t
 By combining persistent sessions with per-file request handling, the implementation supports batch uploads more effectively, reducing connection setup time and improving overall throughput.
 
 Client and server share one TCP connection that stays open until you quit.
-• You type a list of filenames. For each file the client:
+• You type a list of filenames. 
 
-sends its name
+For each file the client: 
 
-encrypts it and sends the ciphertext
+1)sends its name
+
+2)encrypts it and sends the ciphertext
 • The server reads name → reads ciphertext → decrypts → saves, then loops back for the next file.
 • No reconnects between files—everything streams one after another over the same socket.
 • When you’re done you type –1, the client sends a “close” message and both sides shut down.
