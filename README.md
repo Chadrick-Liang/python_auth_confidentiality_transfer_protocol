@@ -126,3 +126,32 @@ To restart later:
 ```
 pipenv shell
 ```
+
+# Section 2: Uploading multiple files
+
+# SO NOT DONE YET BRUH!!!!
+
+# Section 3: Sustainability & Inclusivity
+
+## Sustainability 
+
+**1) Optimized File Transfer**
+
+How it works: 
+
+Explanation: This implementation incorporates sustainability considerations by reducing unnecessary data transfers and optimising network usage. 
+Once the secure session key is established between the client and server, the client generates an encrypted hash of the file and sends it to the server for verification. 
+If the server detects that an identical file already exists, the transfer is cancelled, preventing redundant uploads and saving bandwidth, processing power, and storage space. 
+Additionally, files are compressed before transmission, as seen in the `ClientWithSecurityCP1.py` and `ServerWithSecurityCP2.py` logic, further minimising the amount of data sent over the network. 
+These measures lower resource consumption on both client and server systems, aligning with sustainable computing practices.
+
+## Inclusivity 
+
+**1) Multilingual Support**
+
+How it works: 
+
+Explanation: The client interface is designed with inclusivity in mind, offering full support for four languages; English, Malay, Tamil, and Chinese. 
+This multilingual approach ensures that users from diverse linguistic backgrounds can interact with the system comfortably without facing language barriers.
+In practice, language-specific message strings are handled within `messages.py`, where message prompts and notifications are mapped to their respective translations. 
+This design choice broadens accessibility, allowing the application to be used effectively in multilingual communities and enhancing the overall user experience for a wider audience.
