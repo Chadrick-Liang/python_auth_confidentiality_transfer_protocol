@@ -1,4 +1,5 @@
 
+# client.py
 import pathlib
 import socket
 import sys
@@ -31,11 +32,11 @@ def receive_message(sock):
 
 
 def authenticate(s):
-    # MODE 3: initiating authentication protocol
+    # MODE 3: authentication protocol start
     print("MODE 3: starting authentication protocol")
     s.sendall(convert_int_to_bytes(3))  # MODE 3 indicator
 
-    # Step 1: Send random challenge to server (M1 + M2)
+    # Step 1: Send random challenge(nonce is random generated) to server (M1 + M2)
     client_message = secrets.token_bytes(32)
     print(f"MODE 3: sending challenge ({len(client_message)} bytes)")
     send_message(s, client_message)
@@ -100,34 +101,33 @@ def main(args):
             s.sendall(convert_int_to_bytes(2))  # MODE 2: close
             return
 
-        # File sending loop
+        # File sending loop (supports multiple files per line)
         while True:
-            filename = input("Enter a filename to send (enter -1 to exit): ").strip()
-
-            while filename != "-1" and not pathlib.Path(filename).is_file():
-                filename = input("Invalid filename. Please try again: ").strip()
-
-            if filename == "-1":
+            raw = input("Enter filenames (separated by spaces), or -1 to exit: ").strip()
+            if raw == "-1":
                 print("MODE 2: user requested close")
                 s.sendall(convert_int_to_bytes(2))  # MODE 2: close
                 break
 
-            filename_bytes = filename.encode("utf-8")
-            base = pathlib.Path(filename).name
+            filenames = raw.split()
+            for fn in filenames:
+                p = pathlib.Path(fn)
+                if not p.is_file():
+                    print(f"  ✗ '{fn}' not found; skipping.")
+                    continue
 
-            # MODE 0: send filename
-            print(f"MODE 0: sending filename '{base}' ({len(filename_bytes)} bytes)")
-            s.sendall(convert_int_to_bytes(0))
-            s.sendall(convert_int_to_bytes(len(filename_bytes)))
-            s.sendall(filename_bytes)
+                base = p.name
+                data = p.read_bytes()
 
-            # MODE 1: send file data
-            with open(filename, mode="rb") as fp:
-                data = fp.read()
-            print(f"MODE 1: sending file data ({len(data)} bytes)")
-            s.sendall(convert_int_to_bytes(1))
-            s.sendall(convert_int_to_bytes(len(data)))
-            s.sendall(data)
+                # MODE 0: send filename
+                print(f"MODE 0: sending filename '{base}' ({len(base.encode())} bytes)")
+                s.sendall(convert_int_to_bytes(0))
+                send_message(s, base.encode())
+
+                # MODE 1: send file data
+                print(f"MODE 1: sending file data ({len(data)} bytes)")
+                s.sendall(convert_int_to_bytes(1))
+                send_message(s, data)
 
         print("Closing connection...")
     end_time = time.time()

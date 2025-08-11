@@ -1,5 +1,7 @@
 
 
+
+# server.py
 import pathlib
 import os
 import socket
@@ -106,8 +108,6 @@ def main(args):
                             print(f"MODE 1: received data ({file_len} bytes)")
 
                             filename_base = filename.split("/")[-1]
-
-                            # Decryption omitted here
                             os.makedirs("recv_files", exist_ok=True)
                             with open(f"recv_files/recv_{filename_base}", "wb") as fp:
                                 fp.write(file_data)
@@ -132,6 +132,7 @@ def main(args):
 def handler(signal_received, frame):
     print('SIGINT or CTRL-C detected. Exiting gracefully')
     exit(0)
+
 
 if __name__ == "__main__":
     signal(SIGINT, handler)
