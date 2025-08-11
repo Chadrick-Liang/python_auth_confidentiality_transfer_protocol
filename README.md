@@ -103,6 +103,18 @@ python3 source/ClientWithSecurityCP2.py [PORT] [SERVER-IP-ADDRESS]
 
 ### Using different machines
 
+Checking IP Address (Of Server) on MacOS:
+
+```sh
+ipconfig getifaddr en0
+```
+
+Checking IP Address (Of Server) on Windows:
+
+```sh
+ipconfig
+```
+
 Server:
 
 ```sh
