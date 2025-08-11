@@ -1,39 +1,27 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/7xa7pSEd)
+# Welcome to CL01 Team 1's PA2 GitRepo🥳
 
-# 50.005 Programming Assignment 2
+This project is the implementation for Programming Assignment 2 of the Computer Systems Engineering module.
 
-This assignment requires knowledge from Network Security and basic knowledge in Python.
+It develops a secure file upload application that enables a client to transfer files to a secure server while ensuring _three key security requirements:_
 
-## Secure FTP != HTTPs
+1. Authenticating the server’s identity to prevent data leaks to untrusted entities
+2. Verifying that the server is live before transmission
+3. Protecting the confidentiality of the data against eavesdropping during transfer
 
-Note that you will be implementing Secure FTP as your own whole new application layer protocol. In NO WAY we are relying on HTTP/s. Please do not confuse the materials, you don't need to know materials in Week 11 and 12 before getting started.
+The solution is built in _three progressive stages:_
 
-## Running the code
+Authentication Protocol (AP), Confidentiality Protocol 1 (CP1), and Confidentiality Protocol 2 (CP2) which together form a complete custom Secure File Transfer protocol.
+The implementation combines socket programming with cryptographic techniques to provide layered security guarantees.
 
-### Install required modules
+# ReadME Layout
 
-This assignment requires Python >3.10 to run.
+**Section 1:** `Running the code` _(Instructions on how to compile and run our programs)_
 
-You can use `pipenv` to create a new virtual environment and install your modules there. If you don't have it, simply install using pip, (assuming your python is aliased as python3):
+**Section 2:** `Uploading multiple files` _(Explaining how client can upload multiple files)_
 
-```
-python3 -m pip install pipenv
-```
+**Section 3:** `Sustainability & Inclusivity` _(Elaborating on how our team considered sustainability & inclusivity in the assignment)_
 
-Then start the virtual environment, upgrade pip, and install the required modules:
-
-```
-pipenv shell
-python -m ensurepip --upgrade
-pip install -r requirements.txt
-```
-
-If `ensurepip` is not available, you need to install it, e.g with Ubuntu:
-
-```
-# Adjust for your python version
-sudo apt-get install python3.10-venv
-```
+# Section 1: Running the code
 
 ### Run `./setup.sh`
 
@@ -48,30 +36,83 @@ This will create 3 directories: `/recv_files`, `/recv_files_enc`, and `/send_fil
 
 ### Run server and client files
 
-In two separate shell sessions, run (assuming you're in root project directory):
+_⚠️ Before running the files, take note of the following:_
+
+1. Replace [PORT] with a number (e.g., 4321).
+2. Replace [SERVER-IP] with 127.0.0.1 if running locally, or your server’s LAN/WAN IP if on a network.
+3. The order is always: start the server first, then the client.
+4. The client will prompt you to choose a file from the /files directory to upload.
+
+To begin, open two separate terminal sessions. Then, run (assuming you're in root project directory):
+
+### 1) No Security
+
+Server:
 
 ```
-python3 source/ServerWithoutSecurity.py
+python3 source/ServerWithoutSecurity.py [PORT] 0.0.0.0
 ```
 
-and:
+Client:
 
 ```
-python3 source/ClientWithoutSecurity.py
+python3 source/ClientWithoutSecurity.py [PORT] [SERVER-IP-ADDRESS]
+```
+
+### 2) Authentication Protocol (AP)
+
+Server:
+
+```
+python3 source/ServerWithSecurityAP.py [PORT] 0.0.0.0
+```
+
+Client:
+
+```
+python3 source/ClientWithSecurityAP.py [PORT] [SERVER-IP-ADDRESS]
+```
+
+### 3) Confidentiality Protocol 1 (CP1)
+
+Server:
+
+```
+python3 source/ServerWithSecurityCP1.py [PORT] 0.0.0.0
+```
+
+Client:
+
+```
+python3 source/ClientWithSecurityCP1.py [PORT] [SERVER-IP-ADDRESS]
+```
+
+### 4) Confidentiality Protocol 2 (CP2)
+
+Server:
+
+```
+python3 source/ServerWithSecurityCP2.py [PORT] 0.0.0.0
+```
+
+Client:
+
+```
+python3 source/ClientWithSecurityCP2.py [PORT] [SERVER-IP-ADDRESS]
 ```
 
 ### Using different machines
 
-You can also host the Server file in another computer:
+Server:
 
 ```sh
-python3 source/ServerWithoutSecurity.py [PORT] 0.0.0.0
+python3 source/ServerWithSecurityCP2.py 4321 0.0.0.0
 ```
 
-The client computer can connect to it using the command:
+Client:
 
 ```sh
-python3 source/ClientWithoutSecurity.py [PORT] [SERVER-IP-ADDRESS]
+python3 source/ClientWithSecurityCP2.py 4321 [SERVER-IP-ADDRESS]
 ```
 
 ### Exiting pipenv shell
@@ -82,173 +123,68 @@ To exit pipenv shell, simply type:
 exit
 ```
 
-Do not forget to spawn the shell again if you'd like to restart the assignment.
-
-# 🛡️ Secure File Transfer System
-
-This project implements a secure file transfer system using Python sockets and cryptographic authentication via digital certificates and signatures. It contains a client and server that exchange files securely after verifying each other using asymmetric key authentication.
-
----
-
-## 📁 Directory Structure
+To restart later:
 
 ```
-programming-assignment-2-cl01_team1/
-├── source/
-│   ├── ClientWithSecurityAP.py         # Client-side script
-│   ├── ServerWithSecurityAP.py         # Server-side script
-│   └── auth/
-│       ├── cacsertificate.crt          # Certificate Authority (CA) cert
-│       ├── server_signed.crt           # Server certificate (signed by CA)
-│       └── _private_key.pem            # Server's private RSA key
-├── files/                              # Files the client sends
-│   └── <file_to_send>
-├── recv_files/                         # Output folder for received files
+pipenv shell
 ```
 
----
+# Section 2: Uploading multiple files
 
-## ⚙️ File Descriptions
+**How it works:** In the terminal, input the path directory of the two files while you wish to upload (with a space in between)
 
-### 📤 `ClientWithSecurityAP.py`
-
-This script handles the client-side logic:
-
-- **Establishes a TCP connection** to the server.
-- **Initiates authentication (MODE 3)**:
-  - Generates a random message.
-  - Sends it to the server for signing.
-  - Receives the signed message and server certificate.
-  - Verifies the server cert with the CA cert.
-  - Verifies the signed message with the server's public key.
-- **If authentication succeeds**:
-  - Prompts the user to input filenames to send.
-  - For each file:
-    - Sends the filename (MODE 0).
-    - Sends the file content (MODE 1).
-  - Ends session with MODE 2.
-
-### 📥 `ServerWithSecurityAP.py`
-
-This script handles the server-side logic:
-
-- **Starts a TCP socket** and listens for a client.
-- **On connection**, enters a loop and reacts based on `MODE`:
-  - **MODE 3** (Authentication):
-    - Receives a message.
-    - Signs it with the server’s private key.
-    - Sends the signed message and server certificate.
-  - **MODE 0** (Filename):
-    - Receives the filename and stores it temporarily.
-  - **MODE 1** (File content):
-    - Receives file data.
-    - Writes it to `recv_files/recv_<filename>`.
-  - **MODE 2** (Close):
-    - Closes the socket gracefully.
-
----
-
-## 🚀 How It Works
-
-### 🔐 Authentication Protocol (MODE 3)
-
-1. **Client** generates a 32-byte random message.
-2. **Client → Server**: random message
-3. **Server signs message** with its private key.
-4. **Server → Client**:
-   - Signed message
-   - Server’s certificate (signed by CA)
-5. **Client verifies**:
-   - Server’s certificate is signed by trusted CA (`cacsertificate.crt`)
-   - Server signed the original message using private key
-6. If both checks succeed, authentication is complete.
-
----
-
-## 📦 File Transfer Protocols
-
-#### ✅ MODE 0 – Send Filename
-
-- Client sends the filename length + filename as bytes.
-- Server reads and stores the name.
-
-#### ✅ MODE 1 – Send File Content
-
-- Client sends the actual file length + file bytes.
-- Server writes file to `recv_files/recv_<filename>`.
-
-#### ✅ MODE 2 – Close Connection
-
-- Client sends MODE 2 to tell server to exit loop and close socket.
-
-#### ✅ MODE 3 – Authentication Protocol
-
-- Ensures the server is verified before any data is exchanged.
-
----
-
-## 📞 Protocol Summary Table
-
-| MODE | Purpose              | Initiator | Description                                         |
-| ---- | -------------------- | --------- | --------------------------------------------------- |
-| 0    | Send Filename        | Client    | Sends the name of the file to be transferred        |
-| 1    | Send File Data       | Client    | Sends the actual file bytes                         |
-| 2    | Terminate Connection | Client    | Instructs server to gracefully close the connection |
-| 3    | Authentication       | Client    | Validates server identity using cert & signature    |
-
----
-
-## ✅ Example Run
-
-**Server:**
+For example:
 
 ```
-$ python3 source/ServerWithSecurityAP.py
-SecureStore Server listening on localhost:4321...
-Connection established with ('127.0.0.1', 50000)
-Handling MODE 3: Authentication Protocol
-✅ Authentication response sent.
-Receiving filename...
-Finished receiving file in 0.02s!
+files/file.txt files/player.psd
 ```
 
-**Client:**
+**Explanation:** The connection between Server and Client is kept open with respect to the number of files being sent.
+On the server side, each incoming file is treated as a separate request within the same session.
 
-```
-$ python3 source/ClientWithSecurityAP.py
-Establishing connection to server...
-Connected
-authentication protocol in progress
-Authentication successful.
-Enter a filename to send (enter -1 to exit): files/sample.txt
-Closing connection...
-Program took 1.93s to run.
-```
+**Advantage:** This design ensures that errors or interruptions affecting one file do not impact the transmission of others, while still benefiting from the efficiency of a single persistent connection.
+By combining persistent sessions with per-file request handling, the implementation supports batch uploads more effectively, reducing connection setup time and improving overall throughput.
 
----
+Client and server share one TCP connection that stays open until you quit.
+• You type a list of filenames.
 
-## 📌 Notes
+For each file the client:
 
-- All files **must be placed in** `files/` directory for client to send.
-- Server will write files into `recv_files/` (must exist at root level).
-- Certificates are read from `source/auth/`.
-- Ensure all paths and files exist to avoid runtime errors.
+1. Sends its name
 
----
+2. Encrypts it and sends the ciphertext
+   • The server reads name → reads ciphertext → decrypts → saves, then loops back for the next file.
+   • No reconnects between files—everything streams one after another over the same socket.
+   • When you’re done you type –1, the client sends a “close” message and both sides shut down.
 
-## 🔧 Dependencies
+# Section 3: Sustainability & Inclusivity
 
-Install required packages (inside virtual environment if needed):
+## Sustainability
 
-```bash
-pip3 install cryptography
-```
+**1) Optimized File Transfer**
 
----
+_Disclaimer: We have only implemented this feature within CP2 due to the lack of time_
 
-Task 1 and 2 done
+**How it works:**
+The sustainability feature adds an encrypted‐deduplication handshake and transparent compression to every file transfer.
 
-## 👨‍💻
+After a secure session is established, the client computes a SHA-256 digest of the raw file before each payload transfer. It packages the filename, size and digest into a small JSON header, encrypted under the symmetric session key, and sends it to the server. The server decrypts and parses the eader and checks for the filename inside the 'recv_files' folder. It then recomputes a hash value of the potential duplicate file. If the server's copy produces the same digest, it replies "SKIP" and the client aborts the transfer, saving the entire payload.
 
-- CL01 Team 1
-- SUTD – 50.005 Computer System Engineering (Summer 2025)
+If the file is new or has changed, the client proceeds to compress the raw bytes with zlib, encrypts the compressed blob, and streams it. The server then decrypts and decompresses the data, storing it under recv_files.
+
+**Explanation:** This implementation incorporates sustainability considerations by reducing unnecessary data transfers and optimising network usage.
+By replacing needless transmimssions with a tiny encrypted header and applying lightweight compression to the actual payload, we minimize overall energy consumption, total bandwith use, CPU and memory utilization, making every transfer as lean and efficient as possible.
+
+## Inclusivity
+
+**1) Multilingual Support**
+
+_Disclaimer: We have only implemented this feature within CP2 due to the lack of time_
+
+**How it works:** On startup, the client presents a simple menu of 4 supported languages (English, 中文, தமிழ், Bahasa Melayu) by reading from a shared messages.py dictionary module. The user enters a number (1–4), which the client maps to a language code ("en", "zh", "ta", "ms"). Immediately after opening the TCP connection, the client sends the chosen code where it is assigned to a global lang variable on both client and server.
+
+From then on, both sides import strings from the MESSAGES dictionary in messages.py, containing all user-facing text, keyed by the language code and message ID. All prompts, errors, and logs flow through this lookup table, so adding a new language is as simple as dropping in a new translation block in messages.py.
+
+**Explanation:** The client interface is designed with inclusivity in mind, offering full support for four languages.
+This multilingual approach ensures that users from diverse linguistic backgrounds can interact with the system comfortably without facing language barriers
+This design choice broadens accessibility, allowing the application to be used effectively in multilingual communities and enhancing the overall user experience for a wider audience.
