@@ -13,6 +13,11 @@ The solution is built in _three progressive stages:_
 Authentication Protocol (AP), Confidentiality Protocol 1 (CP1), and Confidentiality Protocol 2 (CP2) which together form a complete custom Secure File Transfer protocol.
 The implementation combines socket programming with cryptographic techniques to provide layered security guarantees.
 
+## Contributors
+- [Fazeelathunnisa d/o Jafar Sathik Basha](https://github.com/iamfazeela)
+- [Sarvesh Joaquim Gopu](https://github.com/TARDIGRADES-ARE-COOL)
+- Chadrick Liang
+
 # ReadME Layout
 
 **Section 1:** `Running the code` _(Instructions on how to compile and run our programs)_
